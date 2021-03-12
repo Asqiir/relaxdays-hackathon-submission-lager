@@ -5,6 +5,8 @@ This project was created in the Relaxdays Code Challenge Vol. 1. See https://sit
 ## Prerequesites
 
 * Docker
+* Port 8080 is used here, so it shouldn't be already used
+* File `data.json` has either to be a file containing `[]` (for starting with no data) or the file created in previously by the program
 
 ## Commands to run
 
@@ -45,12 +47,12 @@ requests.post("http://0.0.0.0:8080", headers={'content-type':'application/json'}
 ## GET
 ```python3
 import requests
-request.get("http://0.0.0.0:8080", data='<name>')
+requests.get("http://0.0.0.0:8080", data='<name>')
 ```
 ## PUT
 ```python3
 import requests
-requests.put("http://0.0.0.0:8080", headers=headers, json=<daten>)
+requests.put("http://0.0.0.0:8080", headers={'content-type':'application/json'}, json=<daten>)
 ```
 
 ## DELETE

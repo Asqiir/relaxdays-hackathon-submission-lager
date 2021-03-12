@@ -1,40 +1,41 @@
-from bottle import route, request, run, template, post, get, put, delete, request, response
+from bottle import request, response, run, post, get, put, delete
 import json
 
 
 class Verwalter:
 	json_file = 'data.json'
 	json_data = ''
-	data_by_name = ''
+	data_by_name = dict()
 
 	def __init__(self):
-		with open(json_file;'r') as file:
-			json_data = json.loads(file.read())
+		with open(self.json_file,'r') as file:
+			self.json_data = json.loads(file.read())
 
-		for entry in json_data:
-			data_by_name[entry['name']] = entry
+		for entry in self.json_data:
+			self.data_by_name[entry['name']] = entry
 
 
 	def __write(self):
-		with open(json_file,'w') as file:
-			json_file.write(json.dumps(json_data))
+		with open(self.json_file,'w') as file:
+			file.write(json.dumps(self.json_data))
 
 
 	def add(self, lagerplatz):
 		print('fuege hinzu: ' + str(lagerplatz))
-		json_data += lagerplatz
-		data_by_name[lagerplatz['name']] = lagerplatz
+
+		self.json_data += [lagerplatz]
+		self.data_by_name[lagerplatz['name']] = lagerplatz
 		self.__write()
 
 
 	def get(self, name):
 		print('ausgabe: ' + name)
-		return data_by_name[name]
+		return self.data_by_name[name]
 
 	def delete(self, name):
 		print('loesche: ' + name)
-		json_data.remove(data_by_name[name])
-		del data_by_name[name]
+		self.json_data.remove(self.data_by_name[name])
+		del self.data_by_name[name]
 		self.__write()
 
 verwalter=Verwalter()
@@ -47,7 +48,7 @@ def storage_place():
 
 @get('/')
 def storage_place():
-	name = str(request.body.read())
+	name = str(request.body.read().decode('utf-8'))
 	response.headers['Content-Type'] = 'application/json'
 	return json.dumps(verwalter.get(name))
 
@@ -61,7 +62,7 @@ def storage_place():
 
 @delete('/')
 def storage_place():
-	name = str(request.body.read())
+	name = str(request.body.read().decode('utf-8'))
 	verwalter.delete(name)
 
 	return 'done'
