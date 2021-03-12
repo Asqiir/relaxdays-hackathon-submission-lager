@@ -2,7 +2,7 @@ This project was created in the Relaxdays Code Challenge Vol. 1. See https://sit
 
 # How to run this project
 
-## Prerequesites
+## Prerequisites
 
 * Docker
 * Port 8080 is used here, so it shouldn't be already used
