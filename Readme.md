@@ -60,3 +60,8 @@ requests.put("http://0.0.0.0:8080", headers={'content-type':'application/json'},
 import requests
 requests.delete("http://0.0.0.0:8080", data='<name>')
 ```
+
+## GET mit Paginierung
+
+* Dies gibt die 20 Einträge zurück, die nach `x` folgen bei lexikographischer Sortierung nach Namen.
+* erreichbar unter `0.0.0.0:8080/<n>/<x>`
