@@ -276,3 +276,9 @@ with open('data.json','r') as file:
 	if not compare_lists2(data,[o1bv2,o3v2,o5v2]):
 		print(data)
 		print('wrong data DELETE')
+
+
+r = requests.get('http://0.0.0.0:8080/v2/storagePlacesForArticleID', params={'x':3})
+if not r.json()==[o1bv2]:
+	print(r.json())
+	print('wrong ARTICLE GET')

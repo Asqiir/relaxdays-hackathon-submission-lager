@@ -67,7 +67,7 @@ class Verwalter: #everything v2
 
 	def get_places_with(self, articleID):
 		result=[]
-		return copy.deepcopy([entry for entry in self.data if entry['articleID']==articleID])
+		return copy.deepcopy([entry for entry in self.json_data if entry['articleID']==articleID])
 
 
 def calc_v1_id(v0_name):
@@ -263,7 +263,7 @@ def storage_places():
 	return json.dumps(page_v2)
 
 #v2
-@get('/v2/storagePlacesForArticlID')
+@get('/v2/storagePlacesForArticleID')
 def storage_places_for_article_id():
 	x = int(request.query['x'])
 	lagerplaetze = verwalter.get_places_with(x)
