@@ -17,6 +17,10 @@ docker build -t lager .
 docker run -p 8080:8080 lager
 ```
 
+# Swagger
+
+swagger json is returned at `/swagger` as json to a simple get request.
+
 # How to send requests 
 
 There are many ways to do this, here is one of them.

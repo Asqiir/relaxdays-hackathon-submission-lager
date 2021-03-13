@@ -14,7 +14,7 @@ def compare_lists2(list1, list2):
     x1 = sorted(list1, key=lambda k:(k['standort'],k['lagerabschnitt'],k['reihe'],k['platz'],k['hoehe'],k['articleID'],k['bestand']))
     x2 = sorted(list2, key=lambda k:(k['standort'],k['lagerabschnitt'],k['reihe'],k['platz'],k['hoehe'],k['articleID'],k['bestand']))
 
-    return all([all([x1[index][key]==x2[index][key] for key in (list(x1[index].keys()) + list(x2[index].keys()))] for index in range(0,max(len(x1),len(x2))))]) 
+    return all([all([x1[index][key]==x2[index][key] for key in (list(x1[index].keys()) + list(x2[index].keys()))] for index in range(0,min(len(x1),len(x2))))]) 
 
 #    return x1==x2
 

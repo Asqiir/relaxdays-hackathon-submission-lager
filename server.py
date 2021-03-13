@@ -1,6 +1,7 @@
 from bottle import request, response, run, post, get, put, delete
 import copy
 import json
+import yaml
 
 
 class Verwalter: #everything v2
@@ -261,6 +262,17 @@ def storage_places_for_article_id():
 	response.headers['Content-Type'] = 'application/json'
 	return json.dumps(lagerplaetze)
 
+
+#==SWAGGER======
+
+global swagger_json
+swagger_json = None
+with open('swagger.yaml') as file:
+	swagger_json = yaml.safe_load(file)
+
+@route('/swagger')
+def swagger():
+	return swagger_json
 
 
 run(host='0.0.0.0', port=8080)
