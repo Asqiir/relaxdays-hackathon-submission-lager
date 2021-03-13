@@ -1,8 +1,9 @@
 from bottle import request, response, run, post, get, put, delete
+import copy
 import json
 
 
-class Verwalter:
+class Verwalter: #everything v2
 	json_file = 'data.json'
 	json_data = []
 	data_by_name = dict()
@@ -18,10 +19,6 @@ class Verwalter:
 
 		self.__write()
 
-		for entry in self.json_data:
-			self.data_by_name[entry['name']] = entry
-
-
 	def __write(self):
 		self.sorted_up_to_date=False
 		with open(self.json_file,'w') as file:
@@ -29,21 +26,24 @@ class Verwalter:
 
 
 	def __sort(self):
-		self.sorted = sorted(self.json_data, key=lambda k:k['name'])
+#		self.sorted = sorted(self.json_data, key=lambda k:k['name'])
+		self.sorted = [self.data_by_name[key] for key in sorted(self.data_by_name.keys())]
 		self.sorted_up_to_date=True
 
 
 	def add(self, lagerplatz):
 		print('fuege hinzu: ' + str(lagerplatz))
+		lagerplatz = copy.deepcopy(lagerplatz)
 
 		self.json_data += [lagerplatz]
-		self.data_by_name[lagerplatz['name']] = lagerplatz
+		self.data_by_name[calc_v0_name(lagerplatz)] = lagerplatz
 		self.__write()
+
 
 
 	def get(self, name):
 		print('ausgabe: ' + name)
-		return self.data_by_name[name]
+		return copy.deepcopy(self.data_by_name[name])
 
 	def delete(self, name):
 		print('loesche: ' + name)
@@ -56,34 +56,52 @@ class Verwalter:
 			self.__sort()
 
 		for index in range(0,len(self.sorted)):
-			print(x)
-			print(n)
+			if calc_v0_name(self.sorted[index]) == x:
+				return copy.deepcopy(self.sorted[index+1:min(index+n+1, len(self.sorted))])
+			if calc_v0_name(self.sorted[index]) > x:
+				return copy.deepcopy(self.sorted[index:min(index+n,len(self.sorted))])
 
-			if self.sorted[index]['name'] == x:
-				return self.sorted[index+1:min(index+n+1, len(self.sorted))]
-			if self.sorted[index]['name'] > x:
-				return self.sorted[index:min(index+n,len(self.sorted))]
+	def get_places_with(self, articleID):
+		result=[]
+		return copy.deepcopy([entry for entry in self.data if entry['articleID']==articleID])
 
 
-
-def calc_new_id(v0_name):
+def calc_v1_id(v0_name):
 	return {
 		'standort':v0_name.split('-')[0],
-		'lagerplatz':v0_name.split('-')[1].split(';')[0],
-		'reihe':v0_name.split('-')[1].split(';')[1],
-		'platz':v0_name.split('-')[1].split(';')[2],
-		'hoehe':v0_name.split('-')[1].split(';')[3],
+		'lagerabschnitt':int(v0_name.split('-')[1].split(';')[0]),
+		'reihe':int(v0_name.split('-')[1].split(';')[1]),
+		'platz':int(v0_name.split('-')[1].split(';')[2]),
+		'hoehe':int(v0_name.split('-')[1].split(';')[3]),
 	}
+
+def calc_v0_name(v1_id):
+	return v1_id['standort'] + '-' + str(v1_id['lagerabschnitt']) + ';' + str(v1_id['reihe']) + ';' + str(v1_id['platz']) + ';' + str(v1_id['hoehe'])
 
 def convert_v0_to_v1(lagerplatz):
 	name_replaced = calc_v1_id(lagerplatz['name'])
-	lagerplatz = lagerplatz | name_replaced
+	lagerplatz = {**lagerplatz, **name_replaced} #merge 2 dicts 
 	del lagerplatz['name']
 	return lagerplatz
 
 def convert_v1_to_v2(lagerplatz):
 	lagerplatz['kapazitaet']=lagerplatz['bestand']
 	return lagerplatz
+
+def convert_v1_to_v0(lagerplatz):
+	lagerplatz['name'] = lagerplatz['standort'] + '-' + str(lagerplatz['lagerabschnitt']) + ';' + str(lagerplatz['reihe']) + ';' + str(lagerplatz['platz']) + ';' + str(lagerplatz['hoehe'])
+	del lagerplatz['standort']
+	del lagerplatz['lagerabschnitt']
+	del lagerplatz['reihe']
+	del lagerplatz['platz']
+	del lagerplatz['hoehe']
+
+	return lagerplatz
+
+def convert_v2_to_v1(lagerplatz):
+	del lagerplatz['kapazitaet']
+	return lagerplatz
+
 
 verwalter=Verwalter()
 
@@ -105,14 +123,14 @@ def storage_place():
 def storage_place():
 	name = str(request.query['x'])
 	response.headers['Content-Type'] = 'application/json'
-	return json.dumps(convert_v2_to_v1(convert_v1_to_v0(verwalter.get(calc_new_id(name)))))
+	return json.dumps(convert_v1_to_v0(convert_v2_to_v1(verwalter.get(name))))
 
 
 #v0
 @put('/storagePlace')
 def storage_place():
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
-	verwalter.delete(calc_new_id(lagerplatz['name']))
+	verwalter.delete(lagerplatz['name'])
 	verwalter.add(convert_v1_to_v2(convert_v0_to_v1(lagerplatz)))
 
 	return 'done'
@@ -121,7 +139,7 @@ def storage_place():
 @delete('/storagePlace')
 def storage_place():
 	name = str(request.query['x'])
-	verwalter.delete(calc_new_id(name))
+	verwalter.delete(name)
 
 	return 'done'
 
@@ -136,7 +154,8 @@ def storage_places():
 
 	page_v2 = verwalter.get_page(n, x)
 	page_v0 = [convert_v1_to_v0(convert_v2_to_v1(entry)) for entry in page_v2]
-	return page_v0
+	response.headers['Content-Type'] = 'application/json'
+	return json.dumps(page_v0)
 	
 #====V1===================00
 
@@ -155,7 +174,7 @@ def storagePlace():
 def storage_place():
 	name = str(request.query['x'])
 	response.headers['Content-Type'] = 'application/json'
-	return json.dumps(convert_v2_to_v1(verwalter.get(calc_new_id(name))))
+	return json.dumps(convert_v2_to_v1(verwalter.get(name)))
 
 #v1
 @put('/v1/storagePlace')
@@ -170,7 +189,7 @@ def storage_place():
 @delete('/v1/storagePlace')
 def storage_place():
 	name = str(request.query['x'])
-	verwalter.delete(calc_new_id(name))
+	verwalter.delete(name)
 
 	return 'done'
 
@@ -185,7 +204,8 @@ def storage_places():
 
 	page_v2 = verwalter.get_page(n, x)
 	page_v1 = [convert_v2_to_v1(entry) for entry in page_v2]
-	return page_v1
+	response.headers['Content-Type'] = 'application/json'
+	return json.dumps(page_v1)
 
 
 #===V2================================
@@ -202,13 +222,13 @@ def storagePlace():
 def storage_place():
 	name = str(request.query['x'])
 	response.headers['Content-Type'] = 'application/json'
-	return json.dumps(verwalter.get(calc_new_id(name)))
+	return json.dumps(verwalter.get(name))
 
 #v2
 @put('/v2/storagePlace')
 def storage_place():
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
-	verwalter.delete(lagerplatz['name'])
+	verwalter.delete(calc_v0_name(lagerplatz))
 	verwalter.add(lagerplatz)
 
 	return 'done'
@@ -217,7 +237,7 @@ def storage_place():
 @delete('/v2/storagePlace')
 def storage_place():
 	name = str(request.query['x'])
-	verwalter.delete(calc_new_id(name))
+	verwalter.delete(name)
 	return 'done'
 
 #v2
@@ -230,7 +250,17 @@ def storage_places():
 		x = ''
 
 	page_v2 = verwalter.get_page(n, x)
-	return page_v2
+	response.headers['Content-Type'] = 'application/json'
+	return json.dumps(page_v2)
+
+#v2
+@get('/v2/storagePlacesForArticlID')
+def storage_places_for_article_id():
+	x = int(request.query['x'])
+	lagerplaetze = verwalter.get_places_with(x)
+	response.headers['Content-Type'] = 'application/json'
+	return json.dumps(lagerplaetze)
+
 
 
 run(host='0.0.0.0', port=8080)
