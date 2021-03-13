@@ -1,4 +1,4 @@
-from bottle import request, response, run, post, get, put, delete
+from bottle import request, response, run, post, get, put, delete, route
 import copy
 import json
 import yaml
@@ -40,10 +40,10 @@ class Verwalter: #everything v2
 		self.data_by_name[calc_v0_name(lagerplatz)] = lagerplatz
 		self.__write()
 
-
-
 	def get(self, name):
 		print('ausgabe: ' + name)
+		print(self.json_data)
+		print(self.data_by_name)
 		return copy.deepcopy(self.data_by_name[name])
 
 	def delete(self, name):
@@ -107,8 +107,8 @@ def convert_v2_to_v1(lagerplatz):
 verwalter=Verwalter()
 
 
-		
 
+#============V0=============00
 
 #v0
 @post('/storagePlace')
