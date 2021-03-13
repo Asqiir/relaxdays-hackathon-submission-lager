@@ -12,8 +12,11 @@ class Verwalter:
 
 
 	def __init__(self):
-		with open(self.json_file,'r') as file:
-			self.json_data = json.loads(file.read())
+
+		#with open(self.json_file,'r') as file:
+		#	self.json_data = json.loads(file.read())
+
+		self.__write()
 
 		for entry in self.json_data:
 			self.data_by_name[entry['name']] = entry
@@ -48,13 +51,15 @@ class Verwalter:
 		del self.data_by_name[name]
 		self.__write()
 
-	def get_page(self, x, n):
+	def get_page(self, n,x=''):
 		if not self.sorted_up_to_date:
 			self.__sort()
 
 		for index in range(0,len(self.sorted)):
 			if self.sorted[index]['name'] == x:
 				return self.sorted[index+1:min(index+n+1, len(self.sorted))]
+			if self.sorted[index]['name'] > x:
+				return self.sorted[index:min(index+n, len(self.sorted))]
 
 
 

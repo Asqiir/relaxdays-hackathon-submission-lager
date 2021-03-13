@@ -6,7 +6,7 @@ This project was created in the Relaxdays Code Challenge Vol. 1. See https://sit
 
 * Docker
 * Port 8080 is used here, so it shouldn't be already used
-* File `data.json` has either to be a file containing `[]` (for starting with no data) or the file created in previously by the program
+* This program uses the file `data.json`. (So this name shouldn't be used for anything else in the same direction.)
 
 ## Commands to run
 
@@ -61,7 +61,6 @@ import requests
 requests.delete("http://0.0.0.0:8080", data='<name>')
 ```
 
-## GET mit Paginierung
+## GET with pagination
 
-* Dies gibt die 20 Einträge zurück, die nach `x` folgen bei lexikographischer Sortierung nach Namen.
-* erreichbar unter `0.0.0.0:8080/<n>/<x>`
+* This returns the `n` entries that are after `x` when sorted by name.
