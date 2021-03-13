@@ -1,4 +1,5 @@
 from bottle import request, response, run, post, get, put, delete, route
+import datetime
 import copy
 import json
 import yaml
@@ -106,6 +107,24 @@ def convert_v2_to_v1(lagerplatz):
 	del lagerplatz['kapazitaet']
 	return lagerplatz
 
+def debug():
+	client_ip = request.remote_addr
+	timestamp = datetime.datetime.now().strftime('%d/%b/%Y:%H:%M:%S')
+	http_verb = request.method
+	xforwardedfor = 'X-Forwarded-For: '
+
+	if 'X-Forwarded-For' in request.headers:
+		for entry in request.headers['X-Forwarded-For']:
+			xforwardedfor += entry + ','
+
+	xforwardedfor = 'X-Forwarded-For: '[:-1]
+
+
+	url = request.urlparts.path + request.urlparts.query
+
+	print(str(client_ip) + ' ' + str(timestamp) + ' ' + str(http_verb) + ' ' + str(url) + ' ' + str(xforwardedfor))
+
+
 
 verwalter=Verwalter()
 
@@ -121,6 +140,7 @@ def reset():
 #v0
 @post('/storagePlace')
 def storage_place():
+	debug()
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	lagerplatz = convert_v1_to_v2(convert_v0_to_v1(lagerplatz))
 
@@ -130,6 +150,7 @@ def storage_place():
 #v0
 @get('/storagePlace')
 def storage_place():
+	debug()
 	name = str(request.query['x'])
 	response.headers['Content-Type'] = 'application/json'
 	return json.dumps(convert_v1_to_v0(convert_v2_to_v1(verwalter.get(name))))
@@ -138,6 +159,7 @@ def storage_place():
 #v0
 @put('/storagePlace')
 def storage_place():
+	debug()
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.delete(lagerplatz['name'])
 	verwalter.add(convert_v1_to_v2(convert_v0_to_v1(lagerplatz)))
@@ -147,6 +169,7 @@ def storage_place():
 #v0
 @delete('/storagePlace')
 def storage_place():
+	debug()
 	name = str(request.query['x'])
 	verwalter.delete(name)
 
@@ -155,6 +178,7 @@ def storage_place():
 #v0
 @get('/storagePlaces')
 def storage_places():
+	debug()
 	n = int(request.query['n'])
 	if 'x' in request.query:
 		x = request.query['x']
@@ -172,6 +196,7 @@ def storage_places():
 #v1
 @post('/v1/storagePlace')
 def storagePlace():
+	debug()
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	lagerplatz = convert_v1_to_v2(lagerplatz)
 
@@ -181,6 +206,7 @@ def storagePlace():
 #v1 (but v0 input)
 @get('/v1/storagePlace')
 def storage_place():
+	debug()
 	name = str(request.query['x'])
 	response.headers['Content-Type'] = 'application/json'
 	return json.dumps(convert_v2_to_v1(verwalter.get(name)))
@@ -188,6 +214,7 @@ def storage_place():
 #v1
 @put('/v1/storagePlace')
 def storage_place():
+	debug()
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.delete(calc_v0_name(lagerplatz))
 	verwalter.add(convert_v1_to_v2(lagerplatz))
@@ -197,6 +224,7 @@ def storage_place():
 #v1 (but v0 input)
 @delete('/v1/storagePlace')
 def storage_place():
+	debug()
 	name = str(request.query['x'])
 	verwalter.delete(name)
 
@@ -205,6 +233,7 @@ def storage_place():
 #v1
 @get('/v1/storagePlaces')
 def storage_places():
+	debug()
 	n = int(request.query['n'])
 	if 'x' in request.query:
 		x = request.query['x']
@@ -222,6 +251,7 @@ def storage_places():
 #v2
 @post('/v2/storagePlace')
 def storagePlace():
+	debug()
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.add(lagerplatz)
 	return 'done'
@@ -229,6 +259,7 @@ def storagePlace():
 #v2 (but v0 input)
 @get('/v2/storagePlace')
 def storage_place():
+	debug()
 	name = str(request.query['x'])
 	response.headers['Content-Type'] = 'application/json'
 	return json.dumps(verwalter.get(name))
@@ -236,6 +267,7 @@ def storage_place():
 #v2
 @put('/v2/storagePlace')
 def storage_place():
+	debug()
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.delete(calc_v0_name(lagerplatz))
 	verwalter.add(lagerplatz)
@@ -245,6 +277,7 @@ def storage_place():
 #v2 (but v0 input)
 @delete('/v2/storagePlace')
 def storage_place():
+	debug()
 	name = str(request.query['x'])
 	verwalter.delete(name)
 	return 'done'
@@ -252,6 +285,7 @@ def storage_place():
 #v2
 @get('/v2/storagePlaces')
 def storage_places():
+	debug()
 	n = int(request.query['n'])
 	if 'x' in request.query:
 		x = request.query['x']
@@ -265,6 +299,7 @@ def storage_places():
 #v2
 @get('/v2/storagePlacesForArticleID')
 def storage_places_for_article_id():
+	debug()
 	x = int(request.query['x'])
 	lagerplaetze = verwalter.get_places_with(x)
 	response.headers['Content-Type'] = 'application/json'

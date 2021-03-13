@@ -8,6 +8,10 @@ This project was created in the Relaxdays Code Challenge Vol. 1. See https://sit
 * Port 8080 is used here, so it shouldn't be already used
 * This program uses the file `data.json`. (So this name shouldn't be used for anything else in the same direction.)
 
+## please note
+
+that the command line output conaining `[` is done automatically by the framework. Mine is the one without.
+
 ## Commands to run
 
 ```bash
