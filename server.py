@@ -20,6 +20,11 @@ class Verwalter: #everything v2
 
 		self.__write()
 
+	def reset(self):
+		self.json_data = []
+		self.data_by_name = dict()
+		self.__write()
+
 	def __write(self):
 		self.sorted_up_to_date=False
 		with open(self.json_file,'w') as file:
@@ -33,7 +38,7 @@ class Verwalter: #everything v2
 
 
 	def add(self, lagerplatz):
-		print('fuege hinzu: ' + str(lagerplatz))
+		#print('fuege hinzu: ' + str(lagerplatz))
 		lagerplatz = copy.deepcopy(lagerplatz)
 
 		self.json_data += [lagerplatz]
@@ -41,13 +46,11 @@ class Verwalter: #everything v2
 		self.__write()
 
 	def get(self, name):
-		print('ausgabe: ' + name)
-		print(self.json_data)
-		print(self.data_by_name)
+		#print('ausgabe: ' + name)
 		return copy.deepcopy(self.data_by_name[name])
 
 	def delete(self, name):
-		print('loesche: ' + name)
+		#print('loesche: ' + name)
 		self.json_data.remove(self.data_by_name[name])
 		del self.data_by_name[name]
 		self.__write()
@@ -107,6 +110,11 @@ def convert_v2_to_v1(lagerplatz):
 verwalter=Verwalter()
 
 
+@get('/reset')
+def reset():
+	verwalter.reset()
+	return 'done'
+
 
 #============V0=============00
 
@@ -162,7 +170,7 @@ def storage_places():
 
 
 #v1
-@post('/v1/storage_place')
+@post('/v1/storagePlace')
 def storagePlace():
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	lagerplatz = convert_v1_to_v2(lagerplatz)
