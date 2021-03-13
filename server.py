@@ -1,4 +1,4 @@
-from bottle import request, response, run, post, get, put, delete, route
+from bottle import request, response, run, post, get, put, delete, route, auth_basic
 import datetime
 import copy
 import json
@@ -70,6 +70,8 @@ class Verwalter: #everything v2
 		result=[]
 		return copy.deepcopy([entry for entry in self.json_data if entry['articleID']==articleID])
 
+def authenticate(user, password):
+	return user=="user" and password=='pass'
 
 def calc_v1_id(v0_name):
 	return {
@@ -107,7 +109,7 @@ def convert_v2_to_v1(lagerplatz):
 	del lagerplatz['kapazitaet']
 	return lagerplatz
 
-def debug():
+def debug(version):
 	client_ip = request.remote_addr
 	timestamp = datetime.datetime.now().strftime('%d/%b/%Y:%H:%M:%S')
 	http_verb = request.method
@@ -120,9 +122,9 @@ def debug():
 	xforwardedfor = 'X-Forwarded-For: '[:-1]
 
 
-	url = request.urlparts.path + request.urlparts.query
+	url = request.urlparts.path if request.urlparts.query=='' else  request.urlparts.path + '?' +  request.urlparts.query
 
-	print(str(client_ip) + ' ' + str(timestamp) + ' ' + str(http_verb) + ' ' + str(url) + ' ' + str(xforwardedfor))
+	print('DeprecatedCall@CC-VOL1: ' + str(client_ip) + ' ' + str(timestamp) + ' ' + str(http_verb) + ' ' + str(url) + ' ' + str(xforwardedfor))
 
 
 
@@ -140,7 +142,7 @@ def reset():
 #v0
 @post('/storagePlace')
 def storage_place():
-	debug()
+	debug(0)
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	lagerplatz = convert_v1_to_v2(convert_v0_to_v1(lagerplatz))
 
@@ -150,7 +152,7 @@ def storage_place():
 #v0
 @get('/storagePlace')
 def storage_place():
-	debug()
+	debug(0)
 	name = str(request.query['x'])
 	response.headers['Content-Type'] = 'application/json'
 	return json.dumps(convert_v1_to_v0(convert_v2_to_v1(verwalter.get(name))))
@@ -159,7 +161,7 @@ def storage_place():
 #v0
 @put('/storagePlace')
 def storage_place():
-	debug()
+	debug(0)
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.delete(lagerplatz['name'])
 	verwalter.add(convert_v1_to_v2(convert_v0_to_v1(lagerplatz)))
@@ -169,7 +171,7 @@ def storage_place():
 #v0
 @delete('/storagePlace')
 def storage_place():
-	debug()
+	debug(0)
 	name = str(request.query['x'])
 	verwalter.delete(name)
 
@@ -178,7 +180,7 @@ def storage_place():
 #v0
 @get('/storagePlaces')
 def storage_places():
-	debug()
+	debug(0)
 	n = int(request.query['n'])
 	if 'x' in request.query:
 		x = request.query['x']
@@ -196,7 +198,7 @@ def storage_places():
 #v1
 @post('/v1/storagePlace')
 def storagePlace():
-	debug()
+	debug(1)
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	lagerplatz = convert_v1_to_v2(lagerplatz)
 
@@ -206,7 +208,7 @@ def storagePlace():
 #v1 (but v0 input)
 @get('/v1/storagePlace')
 def storage_place():
-	debug()
+	debug(1)
 	name = str(request.query['x'])
 	response.headers['Content-Type'] = 'application/json'
 	return json.dumps(convert_v2_to_v1(verwalter.get(name)))
@@ -214,7 +216,7 @@ def storage_place():
 #v1
 @put('/v1/storagePlace')
 def storage_place():
-	debug()
+	debug(1)
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.delete(calc_v0_name(lagerplatz))
 	verwalter.add(convert_v1_to_v2(lagerplatz))
@@ -224,7 +226,7 @@ def storage_place():
 #v1 (but v0 input)
 @delete('/v1/storagePlace')
 def storage_place():
-	debug()
+	debug(1)
 	name = str(request.query['x'])
 	verwalter.delete(name)
 
@@ -233,7 +235,7 @@ def storage_place():
 #v1
 @get('/v1/storagePlaces')
 def storage_places():
-	debug()
+	debug(1)
 	n = int(request.query['n'])
 	if 'x' in request.query:
 		x = request.query['x']
@@ -251,7 +253,7 @@ def storage_places():
 #v2
 @post('/v2/storagePlace')
 def storagePlace():
-	debug()
+	debug(2)
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.add(lagerplatz)
 	return 'done'
@@ -259,7 +261,7 @@ def storagePlace():
 #v2 (but v0 input)
 @get('/v2/storagePlace')
 def storage_place():
-	debug()
+	debug(2)
 	name = str(request.query['x'])
 	response.headers['Content-Type'] = 'application/json'
 	return json.dumps(verwalter.get(name))
@@ -267,7 +269,7 @@ def storage_place():
 #v2
 @put('/v2/storagePlace')
 def storage_place():
-	debug()
+	debug(2)
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.delete(calc_v0_name(lagerplatz))
 	verwalter.add(lagerplatz)
@@ -277,7 +279,7 @@ def storage_place():
 #v2 (but v0 input)
 @delete('/v2/storagePlace')
 def storage_place():
-	debug()
+	debug(2)
 	name = str(request.query['x'])
 	verwalter.delete(name)
 	return 'done'
@@ -285,10 +287,10 @@ def storage_place():
 #v2
 @get('/v2/storagePlaces')
 def storage_places():
-	debug()
+	debug(2)
 	n = int(request.query['n'])
 	if 'x' in request.query:
-		x = request.query['x']
+		x = str(request.query['x'])
 	else:
 		x = ''
 
@@ -299,7 +301,67 @@ def storage_places():
 #v2
 @get('/v2/storagePlacesForArticleID')
 def storage_places_for_article_id():
-	debug()
+	debug(2)
+	x = int(request.query['x'])
+	lagerplaetze = verwalter.get_places_with(x)
+	response.headers['Content-Type'] = 'application/json'
+	return json.dumps(lagerplaetze)
+
+
+#===V3================================
+
+#v3
+@post('/v3/storagePlace')
+@auth_basic(authenticate)
+def storagePlace():
+	lagerplatz = json.loads(request.body.read().decode('utf-8'))
+	verwalter.add(lagerplatz)
+	return 'done'
+
+#v3 (but v0 input)
+@get('/v3/storagePlace')
+@auth_basic(authenticate)
+def storage_place():
+	name = str(request.query['x'])
+	response.headers['Content-Type'] = 'application/json'
+	return json.dumps(verwalter.get(name))
+
+#v3
+@put('/v3/storagePlace')
+@auth_basic(authenticate)
+def storage_place():
+	lagerplatz = json.loads(request.body.read().decode('utf-8'))
+	verwalter.delete(calc_v0_name(lagerplatz))
+	verwalter.add(lagerplatz)
+
+	return 'done'
+
+#v3 (but v0 input)
+@delete('/v3/storagePlace')
+@auth_basic(authenticate)
+def storage_place():
+	name = str(request.query['x'])
+	verwalter.delete(name)
+	return 'done'
+
+#v3
+@get('/v3/storagePlaces')
+@auth_basic(authenticate)
+def storage_places():
+	n = int(request.query['n'])
+	if 'x' in request.query:
+		x = request.query['x']
+	else:
+		x = ''
+
+	page_v2 = verwalter.get_page(n, x)
+	response.headers['Content-Type'] = 'application/json'
+	return json.dumps(page_v2)
+
+#v3
+@get('/v3/storagePlacesForArticleID')
+@auth_basic(authenticate)
+def storage_places_for_article_id():
 	x = int(request.query['x'])
 	lagerplaetze = verwalter.get_places_with(x)
 	response.headers['Content-Type'] = 'application/json'
