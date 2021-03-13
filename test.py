@@ -198,3 +198,81 @@ with open('data.json','r') as file:
 	if not compare_lists2(data,[o1bv2,o3v2,o5v2]):
 		print(data)
 		print('wrong data DELETE')
+
+
+#============V2================================
+
+
+time.sleep(0.1)
+requests.get("http://0.0.0.0:8080/reset")
+time.sleep(0.1)
+
+
+with open('data.json','w') as file:
+	file.write('[]')
+
+
+requests.post("http://0.0.0.0:8080/v2/storagePlace", data=json.dumps(o1v2))
+requests.post("http://0.0.0.0:8080/v2/storagePlace", data=json.dumps(o2v2))
+requests.post("http://0.0.0.0:8080/v2/storagePlace", data=json.dumps(o3v2))
+requests.post("http://0.0.0.0:8080/v2/storagePlace", data=json.dumps(o4v2))
+requests.post("http://0.0.0.0:8080/v2/storagePlace", data=json.dumps(o5v2))
+time.sleep(0.1)
+
+
+with open('data.json','r') as file:
+	data = json.loads(file.read())
+	if not compare_lists2(data,[o1v2,o2v2,o3v2,o4v2,o5v2]):
+		print(data)
+		print('wrong data POST')
+
+
+r1 = requests.get("http://0.0.0.0:8080/v2/storagePlace", params={'x':'a-1;2;3;4'})
+r2 = requests.get("http://0.0.0.0:8080/v2/storagePlace", params={'x':'f-1;1;1;1'})
+
+with open('data.json','r') as file:
+	data = json.loads(file.read())
+	
+	if r1.json() != o1v2 or r2.json() != o2v2:
+		print(r1.json())
+		print(r2.json())
+		print('wrong data GET')
+
+r3 = requests.get("http://0.0.0.0:8080/v2/storagePlaces", params={'n':2})
+r4 = requests.get("http://0.0.0.0:8080/v2/storagePlaces", params={'n':1,'x':'b-1;1;1;1'})
+r5 = requests.get("http://0.0.0.0:8080/v2/storagePlaces", params={'n':2,'x':'c-1;1;1;1'})
+
+
+with open('data.json','r') as file:
+	data = json.loads(file.read())
+	if r3.json() != [o1v2,o4v2] :
+		print(r3.json())
+		print('wrong data GET PAGINATION')
+	if r4.json() != [o3v2] :
+		print(r3.json())
+		print('wrong data GET PAGINATION')
+	if r5.json() != [o3v2,o5v2] :
+		print(r3.json())
+		print('wrong data GET PAGINATION')
+
+
+requests.put("http://0.0.0.0:8080/v2/storagePlace", data=json.dumps(o1bv2))
+requests.put("http://0.0.0.0:8080/v2/storagePlace", data=json.dumps(o4bv2))
+
+with open('data.json','r') as file:
+	data = json.loads(file.read())
+	
+	if not compare_lists2(data,[o1bv2,o2v2,o3v2,o4bv2,o5v2]):
+		print(data)
+		print('wrong data PUT')
+
+
+requests.delete("http://0.0.0.0:8080/v2/storagePlace", params={'x':'f-1;1;1;1'})
+requests.delete("http://0.0.0.0:8080/v2/storagePlace", params={'x':'b-1;1;1;1'})
+
+with open('data.json','r') as file:
+	data = json.loads(file.read())
+	
+	if not compare_lists2(data,[o1bv2,o3v2,o5v2]):
+		print(data)
+		print('wrong data DELETE')

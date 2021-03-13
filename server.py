@@ -93,7 +93,7 @@ def convert_v1_to_v2(lagerplatz):
 	return lagerplatz
 
 def convert_v1_to_v0(lagerplatz):
-	lagerplatz['name'] = lagerplatz['standort'] + '-' + str(lagerplatz['lagerabschnitt']) + ';' + str(lagerplatz['reihe']) + ';' + str(lagerplatz['platz']) + ';' + str(lagerplatz['hoehe'])
+	lagerplatz['name'] = calc_v0_name(lagerplatz)
 	del lagerplatz['standort']
 	del lagerplatz['lagerabschnitt']
 	del lagerplatz['reihe']
@@ -166,7 +166,7 @@ def storage_places():
 	response.headers['Content-Type'] = 'application/json'
 	return json.dumps(page_v0)
 	
-#====V1===================00
+#====V1===================
 
 
 #v1
@@ -189,7 +189,7 @@ def storage_place():
 @put('/v1/storagePlace')
 def storage_place():
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
-	verwalter.delete(lagerplatz['name'])
+	verwalter.delete(calc_v0_name(lagerplatz))
 	verwalter.add(convert_v1_to_v2(lagerplatz))
 
 	return 'done'
@@ -220,7 +220,7 @@ def storage_places():
 #===V2================================
 
 #v2
-@post('/v2/storage_place')
+@post('/v2/storagePlace')
 def storagePlace():
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.add(lagerplatz)
