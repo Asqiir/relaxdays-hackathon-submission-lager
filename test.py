@@ -20,11 +20,11 @@ o4 = {'name':'b','articleID':1,'bestand':17}
 o5 = {'name':'e','articleID':1,'bestand':17}
 
 
-requests.post("http://0.0.0.0:8080", headers={'content-type':'application/json'}, json={'name':'a','articleID':3,'bestand':17})
-requests.post("http://0.0.0.0:8080", headers={'content-type':'application/json'}, json={'name':'f','articleID':17,'bestand':17})
-requests.post("http://0.0.0.0:8080", headers={'content-type':'application/json'}, json={'name':'d','articleID':5,'bestand':17})
-requests.post("http://0.0.0.0:8080", headers={'content-type':'application/json'}, json={'name':'b','articleID':1,'bestand':17})
-requests.post("http://0.0.0.0:8080", headers={'content-type':'application/json'}, json={'name':'e','articleID':1,'bestand':17})
+requests.post("http://0.0.0.0:8080/storagePlace", data=json.dumps(o1))
+requests.post("http://0.0.0.0:8080/storagePlace", data=json.dumps(o2))
+requests.post("http://0.0.0.0:8080/storagePlace", data=json.dumps(o3))
+requests.post("http://0.0.0.0:8080/storagePlace", data=json.dumps(o4))
+requests.post("http://0.0.0.0:8080/storagePlace", data=json.dumps(o5))
 
 
 with open('data.json','r') as file:
@@ -34,8 +34,8 @@ with open('data.json','r') as file:
 		print('wrong data POST')
 
 
-r1 = requests.get("http://0.0.0.0:8080", data='a')
-r2 = requests.get("http://0.0.0.0:8080", data='f')
+r1 = requests.get("http://0.0.0.0:8080/storagePlace", params={'x':'a'})
+r2 = requests.get("http://0.0.0.0:8080/storagePlace", params={'x':'f'})
 
 with open('data.json','r') as file:
 	data = json.loads(file.read())
@@ -45,25 +45,42 @@ with open('data.json','r') as file:
 		print(r2.json())
 		print('wrong data GET')
 
+r3 = requests.get("http://0.0.0.0:8080/storagePlace", params={'n':2})
+r4 = requests.get("http://0.0.0.0:8080/storagePlace", params={'n':1,'x':'b'})
+r5 = requests.get("http://0.0.0.0:8080/storagePlace", params={'n':2,'x':'c'})
 
-
-
-o1b = {'name':'a','articleID':3,'bestand':18}
-o2b = {'name':'b','articleID':0,'bestand':0}
-
-requests.put("http://0.0.0.0:8080", headers={'content-type':'application/json'}, json={'name':'a','articleID':3,'bestand':18})
-requests.put("http://0.0.0.0:8080", headers={'content-type':'application/json'}, json={'name':'b','articleID':0,'bestand':0})
 
 with open('data.json','r') as file:
 	data = json.loads(file.read())
 	
-	if not compare_lists(data,[o1b,o2,o3,o2b,o5]):
+	if r3.json() != [o1,o4] :
+		print(r3.json())
+		print('wrong data GET PAGINATION')
+	if r4.json() != [o3] :
+		print(r3.json())
+		print('wrong data GET PAGINATION')
+	if r5.json() != [o3,o5] :
+		print(r3.json())
+		print('wrong data GET PAGINATION')
+
+
+
+o1b = {'name':'a','articleID':3,'bestand':18}
+o4b = {'name':'b','articleID':0,'bestand':0}
+
+requests.put("http://0.0.0.0:8080/storagePlace", data=json.dumps(o1b))
+requests.put("http://0.0.0.0:8080/storagePlace", data=json.dumps(o4b))
+
+with open('data.json','r') as file:
+	data = json.loads(file.read())
+	
+	if not compare_lists(data,[o1b,o2,o3,o4b,o5]):
 		print(data)
 		print('wrong data PUT')
 
 
-requests.delete("http://0.0.0.0:8080", data='f')
-requests.delete("http://0.0.0.0:8080", data='b')
+requests.delete("http://0.0.0.0:8080/storagePlace", params={'x':'f'})
+requests.delete("http://0.0.0.0:8080/storagePlace", params={'x':'b'})
 
 with open('data.json','r') as file:
 	data = json.loads(file.read())

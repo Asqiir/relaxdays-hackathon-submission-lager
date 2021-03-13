@@ -56,51 +56,56 @@ class Verwalter:
 			self.__sort()
 
 		for index in range(0,len(self.sorted)):
+			print(x)
+			print(n)
+
 			if self.sorted[index]['name'] == x:
 				return self.sorted[index+1:min(index+n+1, len(self.sorted))]
 			if self.sorted[index]['name'] > x:
-				return self.sorted[index:min(index+n, len(self.sorted))]
-
+				return self.sorted[index:min(index+n,len(self.sorted))]
 
 
 
 verwalter=Verwalter()
 
-@post('/')
+@post('/storagePlace')
 def storage_place():
-	lagerplatz = request.json
+	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.add(lagerplatz)
 	return 'done'
 
-@get('/')
+@get('/storagePlace')
 def storage_place():
-	name = str(request.body.read().decode('utf-8'))
-	response.headers['Content-Type'] = 'application/json'
-	return json.dumps(verwalter.get(name))
+	if 'n' in request.query:
+		#paginated
+		n = int(request.query['n'])
+		if 'x' in request.query:
+			x = request.query['x']
+		else:
+			x = ''
 
-@put('/')
+		page = verwalter.get_page(n, x)
+		return json.dumps(page)
+	else:
+		#simple get
+		name = str(request.query['x'])
+		response.headers['Content-Type'] = 'application/json'
+		return json.dumps(verwalter.get(name))
+	
+@put('/storagePlace')
 def storage_place():
-	lagerplatz = request.json
+	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.delete(lagerplatz['name'])
 	verwalter.add(lagerplatz)
 
 	return 'done'
 
-@delete('/')
+@delete('/storagePlace')
 def storage_place():
-	name = str(request.body.read().decode('utf-8'))
+	name = str(request.query['x'])
 	verwalter.delete(name)
 
 	return 'done'
-
-@get('/<nin>/<xin>')
-def get_storagePlaces(nin, xin):
-	n = int(nin)
-	x = str(xin)
-
-	page = verwalter.get_page(x, n)
-	return json.dumps(page)
-
 
 
 run(host='0.0.0.0', port=8080)

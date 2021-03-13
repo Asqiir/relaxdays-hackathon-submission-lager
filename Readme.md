@@ -42,12 +42,12 @@ and `<name>` is a atring without any of the following characters: ? % /
 ## POST
 ```python3
 import requests
-requests.post("http://0.0.0.0:8080", headers={'content-type':'application/json'}, json=<daten>)
+requests.post("http://0.0.0.0:8080/storagePlace", data='<name>')
 ```
 ## GET
 ```python3
 import requests
-requests.get("http://0.0.0.0:8080", data='<name>')
+requests.get("http://0.0.0.0:8080/storagePlace", params={'x':'<name>'})
 ```
 ## PUT
 ```python3
