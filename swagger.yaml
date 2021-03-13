@@ -1,0 +1,290 @@
+swagger: '2.0'
+info:
+  title: Hackathon Relaxdays Aufgabe Lager
+  version: '0.1.9'
+schemes: ['http']
+host: 0.0.0.0:8080
+paths:
+  /storagePlace:
+    post:
+      summary: add a storage place
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: storageplace
+          description: the storage place to add
+          schema: 
+            $ref: '#/definitions/StoragePlace'
+          required: true
+      responses:
+        200:
+          description: OK
+    get:
+      summary: returns the storage place with the name x
+      parameters:
+        - in: query
+          name: x
+          type: string
+          description: name x of the searched storage place
+          required: true
+      produces:
+        - application/json
+      responses:
+        '200':    # status code
+          description: OK
+    put:
+      summary: update data of a single storage place. it is identified by its name.
+      parameters:
+        - in: body
+          name: lagerplatz
+          description: the data
+          schema:
+            $ref: '#/definitions/StoragePlace'
+          required: true
+      responses:
+        '200':
+          description: OK
+    delete:
+      summary: delete a storage place.
+      parameters:
+        - in: query
+          name: x
+          type: string
+          description: name of the storage place
+          required: true
+      responses:
+        '200':
+          description: OK
+  /storagePlaces:
+    get:
+      summary: returns n storage places whose names are sorted after x
+      parameters:
+        - in: query
+          name: x
+          type: string
+        - in: query
+          name: n
+          type: integer
+          required: true
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+  /v1/storagePlace:
+    post:
+      summary: add storage place specified by v1
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: storageplace
+          description: the storage place to add
+          schema: 
+            $ref: '#/definitions/StoragePlaceV1'
+          required: true
+      responses:
+        200:
+          description: OK
+    get:
+      summary: returns the storage place with the name x
+      parameters:
+        - in: query
+          name: x
+          type: string
+          description: name x of the searched storage place
+          required: true
+      produces:
+        - application/json
+      responses:
+        '200':    # status code
+          description: OK
+    put:
+      summary: update data of a single storage place. it is identified by its name.
+      parameters:
+        - in: body
+          name: lagerplatz
+          description: the data
+          schema:
+            $ref: '#/definitions/StoragePlaceV1'
+          required: true
+      responses:
+        '200':
+          description: OK
+    delete:
+      summary: delete a storage place.
+      parameters:
+        - in: query
+          name: x
+          type: string
+          description: name of the storage place
+          required: true
+      responses:
+        '200':
+          description: OK
+  /v1/storagePlaces:
+    get:
+      summary: returns n storage places whose names are sorted after x
+      parameters:
+        - in: query
+          name: x
+          type: string
+        - in: query
+          name: n
+          type: integer
+          required: true
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+
+  /v2/storagePlace:
+    post:
+      summary: add storage place specified by v1
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: storageplace
+          description: the storage place to add
+          schema: 
+            $ref: '#/definitions/StoragePlaceV2'
+          required: true
+      responses:
+        200:
+          description: OK
+    get:
+      summary: returns the storage place with the name x
+      parameters:
+        - in: query
+          name: x
+          type: string
+          description: name x of the searched storage place
+          required: true
+      produces:
+        - application/json
+      responses:
+        '200':    # status code
+          description: OK
+    put:
+      summary: update data of a single storage place. it is identified by its name.
+      parameters:
+        - in: body
+          name: lagerplatz
+          description: the data
+          schema:
+            $ref: '#/definitions/StoragePlaceV2'
+          required: true
+      responses:
+        '200':
+          description: OK
+    delete:
+      summary: delete a storage place.
+      parameters:
+        - in: query
+          name: x
+          type: string
+          description: name of the storage place
+          required: true
+      responses:
+        '200':
+          description: OK
+  /v2/storagePlaces:
+    get:
+      summary: returns n storage places whose names are sorted after x
+      parameters:
+        - in: query
+          name: x
+          type: string
+        - in: query
+          name: n
+          type: integer
+          required: true
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+  /v2/storagePlacesForArticleID:
+    get:
+      summary: returns any storage place where articles with given articleID currently are
+      parameters:
+        - in: query
+          name: x
+          type: integer
+          required: true
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+  
+definitions:
+  StoragePlace:
+    type: object
+    required:
+      - name
+      - articleID
+      - bestand
+    properties:
+      name:
+        type: string
+      articleID: 
+        type: integer
+      bestand:
+        type: integer
+  StoragePlaceV1:
+    type: object
+    required:
+      - standort
+      - lagerabschnitt
+      - reihe
+      - platz
+      - hoehe
+      - articleID
+      - bestand
+    properties:
+      standort:
+        type: string
+      lagerabschnitt:
+        type: integer
+      reihe:
+        type: integer
+      platz:
+        type: integer
+      hoehe:
+        type: integer
+      articleID: 
+        type: integer
+      bestand:
+        type: integer
+  StoragePlaceV2:
+    type: object
+    required:
+      - standort
+      - lagerabschnitt
+      - reihe
+      - platz
+      - hoehe
+      - articleID
+      - bestand
+      - kapazitaet
+    properties:
+      standort:
+        type: string
+      lagerabschnitt:
+        type: integer
+      reihe:
+        type: integer
+      platz:
+        type: integer
+      hoehe:
+        type: integer
+      articleID: 
+        type: integer
+      bestand:
+        type: integer
+      kapazitaet:
+        type: integer

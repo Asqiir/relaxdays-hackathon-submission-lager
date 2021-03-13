@@ -66,33 +66,146 @@ class Verwalter:
 
 
 
+def calc_new_id(v0_name):
+	return {
+		'standort':v0_name.split('-')[0],
+		'lagerplatz':v0_name.split('-')[1].split(';')[0],
+		'reihe':v0_name.split('-')[1].split(';')[1],
+		'platz':v0_name.split('-')[1].split(';')[2],
+		'hoehe':v0_name.split('-')[1].split(';')[3],
+	}
+
+def convert_v0_to_v1(lagerplatz):
+	name_replaced = calc_v1_id(lagerplatz['name'])
+	lagerplatz = lagerplatz | name_replaced
+	del lagerplatz['name']
+	return lagerplatz
+
+def convert_v1_to_v2(lagerplatz):
+	lagerplatz['kapazitaet']=lagerplatz['bestand']
+	return lagerplatz
+
 verwalter=Verwalter()
 
+
+		
+
+
+#v0
 @post('/storagePlace')
 def storage_place():
+	lagerplatz = json.loads(request.body.read().decode('utf-8'))
+	lagerplatz = convert_v1_to_v2(convert_v0_to_v1(lagerplatz))
+
+	verwalter.add(lagerplatz)
+	return 'done'
+
+#v0
+@get('/storagePlace')
+def storage_place():
+	name = str(request.query['x'])
+	response.headers['Content-Type'] = 'application/json'
+	return json.dumps(convert_v2_to_v1(convert_v1_to_v0(verwalter.get(calc_new_id(name)))))
+
+
+#v0
+@put('/storagePlace')
+def storage_place():
+	lagerplatz = json.loads(request.body.read().decode('utf-8'))
+	verwalter.delete(calc_new_id(lagerplatz['name']))
+	verwalter.add(convert_v1_to_v2(convert_v0_to_v1(lagerplatz)))
+
+	return 'done'
+
+#v0
+@delete('/storagePlace')
+def storage_place():
+	name = str(request.query['x'])
+	verwalter.delete(calc_new_id(name))
+
+	return 'done'
+
+#v0
+@get('/storagePlaces')
+def storage_places():
+	n = int(request.query['n'])
+	if 'x' in request.query:
+		x = request.query['x']
+	else:
+		x = ''
+
+	page_v2 = verwalter.get_page(n, x)
+	page_v0 = [convert_v1_to_v0(convert_v2_to_v1(entry)) for entry in page_v2]
+	return page_v0
+	
+#====V1===================00
+
+
+#v1
+@post('/v1/storage_place')
+def storagePlace():
+	lagerplatz = json.loads(request.body.read().decode('utf-8'))
+	lagerplatz = convert_v1_to_v2(lagerplatz)
+
+	verwalter.add(lagerplatz)
+	return 'done'
+
+#v1 (but v0 input)
+@get('/v1/storagePlace')
+def storage_place():
+	name = str(request.query['x'])
+	response.headers['Content-Type'] = 'application/json'
+	return json.dumps(convert_v2_to_v1(verwalter.get(calc_new_id(name))))
+
+#v1
+@put('/v1/storagePlace')
+def storage_place():
+	lagerplatz = json.loads(request.body.read().decode('utf-8'))
+	verwalter.delete(lagerplatz['name'])
+	verwalter.add(convert_v1_to_v2(lagerplatz))
+
+	return 'done'
+
+#v1 (but v0 input)
+@delete('/v1/storagePlace')
+def storage_place():
+	name = str(request.query['x'])
+	verwalter.delete(calc_new_id(name))
+
+	return 'done'
+
+#v1
+@get('/v1/storagePlaces')
+def storage_places():
+	n = int(request.query['n'])
+	if 'x' in request.query:
+		x = request.query['x']
+	else:
+		x = ''
+
+	page_v2 = verwalter.get_page(n, x)
+	page_v1 = [convert_v2_to_v1(entry) for entry in page_v2]
+	return page_v1
+
+
+#===V2================================
+
+#v2
+@post('/v2/storage_place')
+def storagePlace():
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.add(lagerplatz)
 	return 'done'
 
-@get('/storagePlace')
+#v2 (but v0 input)
+@get('/v2/storagePlace')
 def storage_place():
-	if 'n' in request.query:
-		#paginated
-		n = int(request.query['n'])
-		if 'x' in request.query:
-			x = request.query['x']
-		else:
-			x = ''
+	name = str(request.query['x'])
+	response.headers['Content-Type'] = 'application/json'
+	return json.dumps(verwalter.get(calc_new_id(name)))
 
-		page = verwalter.get_page(n, x)
-		return json.dumps(page)
-	else:
-		#simple get
-		name = str(request.query['x'])
-		response.headers['Content-Type'] = 'application/json'
-		return json.dumps(verwalter.get(name))
-	
-@put('/storagePlace')
+#v2
+@put('/v2/storagePlace')
 def storage_place():
 	lagerplatz = json.loads(request.body.read().decode('utf-8'))
 	verwalter.delete(lagerplatz['name'])
@@ -100,12 +213,24 @@ def storage_place():
 
 	return 'done'
 
-@delete('/storagePlace')
+#v2 (but v0 input)
+@delete('/v2/storagePlace')
 def storage_place():
 	name = str(request.query['x'])
-	verwalter.delete(name)
-
+	verwalter.delete(calc_new_id(name))
 	return 'done'
+
+#v2
+@get('/v2/storagePlaces')
+def storage_places():
+	n = int(request.query['n'])
+	if 'x' in request.query:
+		x = request.query['x']
+	else:
+		x = ''
+
+	page_v2 = verwalter.get_page(n, x)
+	return page_v2
 
 
 run(host='0.0.0.0', port=8080)
