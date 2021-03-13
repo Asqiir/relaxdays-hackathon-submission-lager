@@ -49,6 +49,20 @@ requests.post("http://0.0.0.0:8080/storagePlace", data='<data>')
 import requests
 requests.get("http://0.0.0.0:8080/storagePlace", params={'x':'<name>'})
 ```
+
+## GET with pagination
+
+```python3
+import requests
+requests.get("http://0.0.0.0:8080/storagePlace", params={'n':<nonnegative integer>})
+requests.get("http://0.0.0.0:8080/storagePlace", params={'n':<nonnegative integer>,'x':'<name>'})
+```
+
+* both requests are valid 
+* please note that `<name>` in this context can be any string that *could* be a name, but it needn't be one that actually *is* a name of one of the saved entries.
+* This returns the `<nonnegative integer>` entries that are after `<name>` when sorted by name.
+
+
 ## PUT
 ```python3
 import requests
@@ -61,6 +75,3 @@ import requests
 requests.delete("http://0.0.0.0:8080/storagePlace", params={'x':'<name>'})
 ```
 
-## GET with pagination
-
-* This returns the `n` entries that are after `x` when sorted by name.
