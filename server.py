@@ -65,6 +65,19 @@ class Verwalter: #everything v2
 				return copy.deepcopy(self.sorted[index+1:min(index+n+1, len(self.sorted))])
 			if calc_v0_name(self.sorted[index]) > x:
 				return copy.deepcopy(self.sorted[index:min(index+n,len(self.sorted))])
+		return []
+
+	def get_filtered_page(self,n,l,x=''):
+		if not self.sorted_up_to_date:
+			self.__sort()
+
+		filtered = [lp for lp in self.sorted if lp['standort']==l]
+		for index in range(0,len(filtered)):
+			if calc_v0_name(filtered[index]) == x:
+				return copy.deepcopy(filtered[index+1:min(index+n+1, len(filtered))])
+			if calc_v0_name(filtered[index]) > x:
+				return copy.deepcopy(filtered[index:min(index+n,len(filtered))])
+		return []
 
 	def get_places_with(self, articleID):
 		result=[]
@@ -192,6 +205,20 @@ def storage_places():
 	response.headers['Content-Type'] = 'application/json'
 	return json.dumps(page_v0)
 	
+
+@get('/storagePlacesAtLocation')
+def storage_places_at_location():
+	n = int(request.query['n'])
+	l = str(request.query['l'])
+	if 'x' in request.query:
+		x = request.query['x']
+	else:
+		x = ''
+
+	page_v2 = verwalter.get_filtered_page(n, l, x)
+	response.headers['Content-Type'] = 'application/json'
+	return json.dumps(page_v2)
+
 #====V1===================
 
 

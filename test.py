@@ -361,3 +361,24 @@ r = requests.get('http://0.0.0.0:8080/v3/storagePlacesForArticleID', params={'x'
 if not r.json()==[o1bv2]:
 	print(r.json())
 	print('wrong ARTICLE GET')
+
+
+r = requests.get('http://0.0.0.0:8080/storagePlacesAtLocation', params={'n':1,'l':'a','x':1})
+
+if not r.json()==[o1bv2]:
+	print(r.json())
+	print('wrong GET FOR LOCATION 1')
+
+
+r = requests.get('http://0.0.0.0:8080/storagePlacesAtLocation', params={'n':1,'l':'x','x':1})
+
+if not r.json()==[]:
+	print(r.json())
+	print('wrong GET FOR LOCATION 2')
+
+
+r = requests.get('http://0.0.0.0:8080/storagePlacesAtLocation', params={'n':1,'l':'a'})
+
+if not r.json()==[o1bv2]:
+	print(r.json())
+	print('wrong GET FOR LOCATION 3')

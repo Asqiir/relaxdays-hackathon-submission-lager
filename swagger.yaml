@@ -72,6 +72,26 @@ paths:
       responses:
         '200':
           description: OK
+  /storagePlacesAtLocation:
+    get:
+      summary: return n storage places at location l whose names are sorted after x
+      parameters:
+        - in: query
+          name: x
+          type: string
+        - in: query
+          name: n
+          type: integer
+          required: true
+        - in: query
+          name: l
+          type: string
+          required: true
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
   /v1/storagePlace:
     post:
       summary: add storage place specified by v1

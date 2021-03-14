@@ -27,6 +27,8 @@ swagger json is returned at `/swagger` as json to a simple get request.
 
 # How to send requests 
 
+For v0 only. Afterwardy, all requests where included in the tasks.
+
 There are many ways to do this, here is one of them.
 
 * the python module `requests` is needed
