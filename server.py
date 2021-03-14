@@ -134,10 +134,9 @@ def debug(version):
 
 	xforwardedfor = 'X-Forwarded-For: '[:-1]
 
-
 	url = request.urlparts.path if request.urlparts.query=='' else  request.urlparts.path + '?' +  request.urlparts.query
 
-	print('DeprecatedCall@CC-VOL1: ' + str(client_ip) + ' ' + str(timestamp) + ' ' + str(http_verb) + ' ' + str(url) + ' ' + str(xforwardedfor))
+	print('DeprecatedCall@CC-VOL1: ' + str(client_ip) + ' ' + str(timestamp) + ' ' + str(http_verb) + ' ' + str(url) + ' ' + str(xforwardedfor), flush=True)
 
 
 
